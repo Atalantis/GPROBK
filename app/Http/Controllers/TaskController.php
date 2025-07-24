@@ -8,6 +8,7 @@ use App\Notifications\ProjectActivityNotification;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\View\View;
 
@@ -124,6 +125,37 @@ class TaskController extends Controller
         }
 
         return redirect()->route('projects.show', $task->project)->with('success', 'Tâche mise à jour avec succès.');
+    }
+
+    /**
+     * Update the status of a task from the Kanban board.
+     */
+    public function updateStatus(Request $request, Task $task): JsonResponse
+    {
+        $this->authorize('update', $task->project);
+
+        $validated = $request->validate([
+            'status' => 'required|in:todo,in_progress,review,completed',
+        ]);
+
+        $originalStatus = $task->status;
+        $task->update($validated);
+
+        // Trigger notification logic from the main update method
+        if ($originalStatus !== 'completed' && $task->status === 'completed' && auth()->user()->role === 'etudiant') {
+            $project = $task->project;
+            $recipient = $project->student->professeur;
+
+            if ($recipient && !$recipient->isMuted(Project::class, $project->id)) {
+                $title = "Tâche terminée";
+                $message = "L'étudiant " . auth()->user()->name . " a terminé la tâche : " . $task->title;
+                $url = route('tasks.show', $task);
+
+                Notification::send($recipient, new ProjectActivityNotification($title, $message, $url));
+            }
+        }
+
+        return response()->json(['success' => true]);
     }
 
     /**

@@ -23,13 +23,13 @@
                         ];
                     @endphp
 
-                    <div class="flex space-x-4 overflow-x-auto pb-4">
+                    <div class="flex space-x-4 overflow-x-auto pb-4" id="kanban-board">
                         @foreach ($statuses as $status => $statusName)
-                            <div class="w-72 bg-gray-100 dark:bg-gray-700 rounded-lg shadow-md flex-shrink-0">
+                            <div class="w-80 bg-gray-100 dark:bg-gray-700 rounded-lg shadow-md flex-shrink-0">
                                 <h3 class="font-bold p-3 text-gray-700 dark:text-gray-200 border-b border-gray-200 dark:border-gray-600">{{ $statusName }}</h3>
-                                <div class="p-2 space-y-2">
+                                <div class="p-2 space-y-2 kanban-column" data-status="{{ $status }}">
                                     @forelse ($project->tasks->where('status', $status) as $task)
-                                        <div class="bg-white dark:bg-gray-800 p-3 rounded-md shadow">
+                                        <div class="bg-white dark:bg-gray-800 p-3 rounded-md shadow cursor-grab" data-task-id="{{ $task->id }}">
                                             <h4 class="font-semibold text-sm">{{ $task->title }}</h4>
                                             <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Priorité:
                                                 <span class="font-bold
@@ -45,7 +45,7 @@
                                             </p>
                                         </div>
                                     @empty
-                                        <p class="p-3 text-xs text-gray-500">Aucune tâche dans cette colonne.</p>
+                                        <div class="p-3 text-xs text-gray-500 text-center">Aucune tâche ici.</div>
                                     @endforelse
                                 </div>
                             </div>
@@ -55,4 +55,53 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+    <script type="module">
+        import Sortable from 'sortablejs';
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const columns = document.querySelectorAll('.kanban-column');
+            columns.forEach(column => {
+                new Sortable(column, {
+                    group: 'kanban', // set both lists to same group
+                    animation: 150,
+                    ghostClass: 'blue-background-class',
+                    onEnd: function (evt) {
+                        const itemEl = evt.item;  // dragged HTMLElement
+                        const toColumn = evt.to;    // target list
+                        
+                        const taskId = itemEl.dataset.taskId;
+                        const newStatus = toColumn.dataset.status;
+
+                        // Send API request to update the task status
+                        fetch(`/tasks/${taskId}/status`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: JSON.stringify({ status: newStatus })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if(data.success) {
+                                // Maybe show a small success toast in the future
+                                console.log('Task status updated!');
+                            } else {
+                                // Revert the move on failure
+                                evt.from.appendChild(itemEl);
+                                alert('Failed to update task status.');
+                            }
+                        })
+                        .catch(() => {
+                            evt.from.appendChild(itemEl);
+                            alert('An error occurred.');
+                        });
+                    },
+                });
+            });
+        });
+    </script>
+    @endpush
 </x-app-layout>
