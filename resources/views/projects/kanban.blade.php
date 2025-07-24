@@ -32,9 +32,9 @@
                                         <div @click="showTaskModal = true; fetch('{{ route('tasks.show.api', $task) }}').then(r => r.text()).then(html => taskModalContent = html)"
                                              class="bg-white dark:bg-gray-800 p-3 rounded-md shadow cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
                                              data-task-id="{{ $task->id }}">
-                                            <h4 class="font-semibold text-sm">{{ $task->title }}</h4>
-                                            <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Priorité:
-                                                <span class="font-bold
+                                            <div class="flex justify-between items-start">
+                                                <h4 class="font-semibold text-sm">{{ $task->title }}</h4>
+                                                <span class="text-xs font-bold
                                                     @switch($task->priority)
                                                         @case('low') text-gray-500 @break
                                                         @case('medium') text-blue-500 @break
@@ -44,11 +44,28 @@
                                                 ">
                                                     {{ ucfirst($task->priority) }}
                                                 </span>
-                                            </p>
+                                            </div>
                                             <div class="flex flex-wrap gap-1 mt-2">
                                                 @foreach($task->categories as $category)
                                                     <span class="px-2 py-1 text-xs font-semibold bg-gray-200 text-gray-800 rounded-full">{{ $category->name }}</span>
                                                 @endforeach
+                                            </div>
+                                            <div class="flex justify-between items-center mt-3 text-xs text-gray-500 dark:text-gray-400">
+                                                <span @if($task->end_date?->isPast() && $task->status != 'completed') class="text-red-500 font-bold" @endif>
+                                                    {{ $task->end_date?->format('d M') ?? 'Pas de date' }}
+                                                </span>
+                                                <div class="flex items-center space-x-2">
+                                                    @if($task->children->isNotEmpty())
+                                                        <span title="{{ $task->children->count() }} sous-tâche(s)">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                                        </span>
+                                                    @endif
+                                                    @if($task->comments->isNotEmpty())
+                                                        <span title="{{ $task->comments->count() }} commentaire(s)">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                                                        </span>
+                                                    @endif
+                                                </div>
                                             </div>
                                         </div>
                                     @empty
