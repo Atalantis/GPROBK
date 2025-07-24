@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Task extends Model
 {
@@ -78,5 +79,21 @@ class Task extends Model
     public function dependents(): BelongsToMany
     {
         return $this->belongsToMany(Task::class, 'task_dependencies', 'prerequisite_task_id', 'dependent_task_id');
+    }
+
+    /**
+     * The categories that belong to the task.
+     */
+    public function categories(): BelongsToMany
+    {
+        return $this->belongsToMany(Category::class);
+    }
+
+    /**
+     * Get all of the task's links.
+     */
+    public function links(): MorphMany
+    {
+        return $this->morphMany(Link::class, 'linkable');
     }
 }
