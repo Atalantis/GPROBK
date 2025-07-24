@@ -21,9 +21,6 @@
     </div>
 
     @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/frappe-gantt/dist/frappe-gantt.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/frappe-gantt/dist/frappe-gantt.css">
-
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             fetch('{{ route('projects.gantt.data', $project) }}')
