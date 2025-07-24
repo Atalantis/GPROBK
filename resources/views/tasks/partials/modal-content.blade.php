@@ -26,6 +26,17 @@
             </div>
         </div>
 
+        @if($task->categories->isNotEmpty())
+        <div>
+            <h4 class="font-semibold text-gray-600 dark:text-gray-400">Catégories</h4>
+            <div class="flex flex-wrap gap-1 mt-1">
+                @foreach($task->categories as $category)
+                    <span class="px-2 py-1 text-xs font-semibold bg-gray-200 text-gray-800 rounded-full">{{ $category->name }}</span>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
         @if($task->prerequisites->isNotEmpty())
         <div>
             <h4 class="font-semibold text-gray-600 dark:text-gray-400">Dépend de</h4>

@@ -98,6 +98,18 @@
                             <x-input-error :messages="$errors->get('prerequisites')" class="mt-2" />
                         </div>
 
+                        <!-- Categories -->
+                        <div class="mt-4">
+                            <x-input-label for="categories" :value="__('Catégories (Optionnel)')" />
+                            <select name="categories[]" id="categories" multiple class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm h-24">
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->id }}" @selected(in_array($category->id, old('categories', [])))>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
 
                         <div class="flex items-center justify-end mt-4">
                              <a href="{{ route('projects.show', $project) }}" class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">

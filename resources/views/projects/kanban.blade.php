@@ -45,6 +45,11 @@
                                                     {{ ucfirst($task->priority) }}
                                                 </span>
                                             </p>
+                                            <div class="flex flex-wrap gap-1 mt-2">
+                                                @foreach($task->categories as $category)
+                                                    <span class="px-2 py-1 text-xs font-semibold bg-gray-200 text-gray-800 rounded-full">{{ $category->name }}</span>
+                                                @endforeach
+                                            </div>
                                         </div>
                                     @empty
                                         <div class="p-3 text-xs text-gray-500 text-center">Aucune tâche ici.</div>

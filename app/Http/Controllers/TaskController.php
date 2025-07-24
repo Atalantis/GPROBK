@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Project;
 use App\Models\Task;
 use App\Notifications\ProjectActivityNotification;
@@ -21,13 +22,10 @@ class TaskController extends Controller
      */
     public function create(Project $project): View
     {
-        // Authorize: only the assigned student or a professor can add a task
         $this->authorize('update', $project);
-
-        // Eager load tasks to pass them to the view for parent/dependency selection
         $project->load('tasks');
-
-        return view('tasks.create', compact('project'));
+        $categories = Category::orderBy('name')->get();
+        return view('tasks.create', compact('project', 'categories'));
     }
 
     /**
@@ -48,12 +46,17 @@ class TaskController extends Controller
             'parent_id' => 'nullable|exists:tasks,id',
             'prerequisites' => 'nullable|array',
             'prerequisites.*' => 'exists:tasks,id',
+            'categories' => 'nullable|array',
+            'categories.*' => 'exists:categories,id',
         ]);
 
         $task = $project->tasks()->create($validated);
 
         if (isset($validated['prerequisites'])) {
             $task->prerequisites()->sync($validated['prerequisites']);
+        }
+        if (isset($validated['categories'])) {
+            $task->categories()->sync($validated['categories']);
         }
 
         return redirect()->route('projects.show', $project)->with('success', 'Tâche ajoutée avec succès.');
@@ -84,11 +87,10 @@ class TaskController extends Controller
     public function edit(Task $task): View
     {
         $this->authorize('update', $task->project);
-
-        // Eager load project tasks for parent/dependency selection
         $projectTasks = $task->project->tasks()->get();
-
-        return view('tasks.edit', compact('task', 'projectTasks'));
+        $categories = Category::orderBy('name')->get();
+        $task->load('categories');
+        return view('tasks.edit', compact('task', 'projectTasks', 'categories'));
     }
 
     /**
@@ -109,6 +111,8 @@ class TaskController extends Controller
             'parent_id' => 'nullable|exists:tasks,id',
             'prerequisites' => 'nullable|array',
             'prerequisites.*' => 'exists:tasks,id',
+            'categories' => 'nullable|array',
+            'categories.*' => 'exists:categories,id',
         ]);
 
         $originalStatus = $task->status;
@@ -118,6 +122,12 @@ class TaskController extends Controller
             $task->prerequisites()->sync($validated['prerequisites']);
         } else {
             $task->prerequisites()->sync([]);
+        }
+
+        if (isset($validated['categories'])) {
+            $task->categories()->sync($validated['categories']);
+        } else {
+            $task->categories()->sync([]);
         }
 
         // Notify professor if a task is completed by a student
