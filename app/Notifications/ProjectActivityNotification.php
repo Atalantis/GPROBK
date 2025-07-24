@@ -29,7 +29,7 @@ class ProjectActivityNotification extends Notification implements ShouldBroadcas
      */
     public function via(object $notifiable): array
     {
-        $channels = ['broadcast'];
+        $channels = ['database', 'broadcast'];
 
         if ($notifiable->notifications_enabled) {
             $channels[] = 'mail';

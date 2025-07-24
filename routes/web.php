@@ -4,6 +4,7 @@ use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\AiAssistantController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CustomFieldDefinitionController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NotificationSettingsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
@@ -26,6 +27,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/notification-settings', [NotificationSettingsController::class, 'index'])->name('notifications.settings');
     Route::post('/notification-settings/global', [NotificationSettingsController::class, 'toggleGlobal'])->name('notifications.global.toggle');
     Route::post('/notification-settings/mute', [NotificationSettingsController::class, 'toggleMute'])->name('notifications.mute.toggle');
+
+    // Notifications Inbox
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readall');
 
     // AI Assistant
     Route::post('/ai/assist', [AiAssistantController::class, 'assist'])->name('ai.assist');
