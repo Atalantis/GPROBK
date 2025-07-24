@@ -68,6 +68,8 @@
                             </div>
                         </div>
 
+                        @include('projects.partials.custom-fields-form', ['customFields' => $customFields])
+
                         <div class="flex items-center justify-end mt-4">
                             <x-primary-button>
                                 {{ __('Créer le projet') }}

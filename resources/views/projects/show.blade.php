@@ -74,6 +74,22 @@
                 </div>
             </div>
 
+            @if($project->customFields->isNotEmpty())
+            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+                <div class="w-full">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Informations Complémentaires</h3>
+                    <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 dark:text-gray-400">
+                        @foreach($project->customFields as $field)
+                            <div>
+                                <strong class="font-semibold text-gray-900 dark:text-gray-100">{{ $field->definition->name }}:</strong>
+                                <span>{{ $field->value }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            @endif
+
             <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
                 <div class="w-full">
                     <div class="flex justify-between items-center mb-4">

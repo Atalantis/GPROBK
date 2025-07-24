@@ -96,4 +96,12 @@ class Task extends Model
     {
         return $this->morphMany(Link::class, 'linkable');
     }
+
+    /**
+     * Get all of the task's custom field values.
+     */
+    public function customFields(): MorphMany
+    {
+        return $this->morphMany(CustomFieldValue::class, 'customizable');
+    }
 }

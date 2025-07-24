@@ -42,6 +42,13 @@
                             {{ __('Notifications') }}
                         </x-dropdown-link>
 
+                        @can('access-admin-features')
+                            <div class="border-t border-gray-200 dark:border-gray-600"></div>
+                            <x-dropdown-link :href="route('custom-fields.index')">
+                                {{ __('Champs Personnalisés') }}
+                            </x-dropdown-link>
+                        @endcan
+
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
@@ -91,6 +98,13 @@
                 <x-responsive-nav-link :href="route('notifications.settings')">
                     {{ __('Notifications') }}
                 </x-responsive-nav-link>
+
+                @can('access-admin-features')
+                    <div class="border-t border-gray-200 dark:border-gray-600"></div>
+                    <x-responsive-nav-link :href="route('custom-fields.index')">
+                        {{ __('Champs Personnalisés') }}
+                    </x-responsive-nav-link>
+                @endcan
 
                 <!-- Authentication -->
                 <form method="POST" action="{{ route('logout') }}">

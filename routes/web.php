@@ -3,6 +3,7 @@
 use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\AiAssistantController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\CustomFieldDefinitionController;
 use App\Http\Controllers\NotificationSettingsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
@@ -28,6 +29,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // AI Assistant
     Route::post('/ai/assist', [AiAssistantController::class, 'assist'])->name('ai.assist');
+
+    // Admin / Professor specific routes
+    Route::middleware('can:access-admin-features')->group(function () {
+        Route::resource('custom-fields', CustomFieldDefinitionController::class)->except(['show']);
+    });
 
     // Projects
     Route::get('projects/{project}/kanban', [ProjectController::class, 'kanban'])->name('projects.kanban');
