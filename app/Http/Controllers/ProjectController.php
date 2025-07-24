@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\View\View;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class ProjectController extends Controller
 {
@@ -23,19 +24,26 @@ class ProjectController extends Controller
     public function index(): View
     {
         $user = auth()->user();
+        
         $projectsQuery = $user->role === 'professeur'
             ? Project::query()
             : $user->projects();
 
-        $projects = $projectsQuery->with('student', 'tasks')->latest()->get();
+        $projects = QueryBuilder::for($projectsQuery)
+            ->allowedFilters(['status'])
+            ->with('student', 'tasks')
+            ->latest()
+            ->get();
 
+        // Stats should be calculated on all projects, not just filtered ones
+        $allProjects = $projectsQuery->get();
         $stats = [
-            'total' => $projects->count(),
-            'draft' => $projects->where('status', 'draft')->count(),
-            'active' => $projects->where('status', 'active')->count(),
-            'review' => $projects->where('status', 'review')->count(),
-            'completed' => $projects->where('status', 'completed')->count(),
-            'overdue_tasks' => Task::whereIn('project_id', $projects->pluck('id'))
+            'total' => $allProjects->count(),
+            'draft' => $allProjects->where('status', 'draft')->count(),
+            'active' => $allProjects->where('status', 'active')->count(),
+            'review' => $allProjects->where('status', 'review')->count(),
+            'completed' => $allProjects->where('status', 'completed')->count(),
+            'overdue_tasks' => Task::whereIn('project_id', $allProjects->pluck('id'))
                 ->where('status', '!=', 'completed')
                 ->where('end_date', '<', now())
                 ->count(),

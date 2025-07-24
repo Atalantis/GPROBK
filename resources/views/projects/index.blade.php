@@ -41,7 +41,15 @@
                 <!-- Projects List -->
                 <div class="lg:col-span-2 bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 text-gray-900 dark:text-gray-100">
-                        <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100">Liste des Projets</h3>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-medium leading-6 text-gray-900 dark:text-gray-100">Liste des Projets</h3>
+                            <div class="flex space-x-2">
+                                <a href="{{ route('dashboard') }}" class="{{ !request('filter.status') ? 'text-blue-600 font-bold' : '' }} text-sm hover:text-blue-500">Tous</a>
+                                <a href="{{ route('dashboard', ['filter[status]' => 'active']) }}" class="{{ request('filter.status') == 'active' ? 'text-blue-600 font-bold' : '' }} text-sm hover:text-blue-500">Actifs</a>
+                                <a href="{{ route('dashboard', ['filter[status]' => 'review']) }}" class="{{ request('filter.status') == 'review' ? 'text-blue-600 font-bold' : '' }} text-sm hover:text-blue-500">En Revue</a>
+                                <a href="{{ route('dashboard', ['filter[status]' => 'completed']) }}" class="{{ request('filter.status') == 'completed' ? 'text-blue-600 font-bold' : '' }} text-sm hover:text-blue-500">Terminés</a>
+                            </div>
+                        </div>
                         <div class="mt-4 relative overflow-x-auto">
                             <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                                 <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
