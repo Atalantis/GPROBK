@@ -64,6 +64,16 @@
                         </p>
                         <p><strong class="w-32 inline-block font-semibold text-gray-900 dark:text-gray-100">Créé le:</strong> <span>{{ $project->created_at->format('d/m/Y H:i') }}</span></p>
                         <p><strong class="w-32 inline-block font-semibold text-gray-900 dark:text-gray-100">Mis à jour le:</strong> <span>{{ $project->updated_at->format('d/m/Y H:i') }}</span></p>
+                        @if($project->categories->isNotEmpty())
+                        <div class="flex items-center pt-2">
+                            <strong class="w-32 inline-block font-semibold text-gray-900 dark:text-gray-100">Catégories:</strong>
+                            <div class="flex flex-wrap gap-1">
+                                @foreach($project->categories as $category)
+                                    <span class="px-2 py-1 text-xs font-semibold bg-gray-200 text-gray-800 rounded-full">{{ $category->name }}</span>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>

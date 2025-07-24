@@ -68,6 +68,18 @@
                             </div>
                         </div>
 
+                        <!-- Categories -->
+                        <div class="mt-4">
+                            <x-input-label for="categories" :value="__('Catégories')" />
+                            <select name="categories[]" id="categories" multiple class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm h-32">
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->id }}" @selected($project->categories->contains($category))>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         @include('projects.partials.custom-fields-form', ['customFields' => $customFields, 'model' => $project])
 
                         <div class="flex items-center justify-end mt-4">

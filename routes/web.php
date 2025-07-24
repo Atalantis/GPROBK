@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\AiAssistantController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CustomFieldDefinitionController;
 use App\Http\Controllers\MilestoneController;
@@ -40,6 +41,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Admin / Professor specific routes
     Route::middleware('can:access-admin-features')->group(function () {
         Route::resource('custom-fields', CustomFieldDefinitionController::class)->except(['show']);
+        Route::resource('categories', CategoryController::class)->except(['show']);
     });
 
     // Projects

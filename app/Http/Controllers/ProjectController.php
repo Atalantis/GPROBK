@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\CustomFieldDefinition;
 use App\Models\Project;
 use App\Models\Task;
@@ -135,14 +136,18 @@ class ProjectController extends Controller
     public function create(): View
     {
         $this->authorize('create', Project::class);
+
         $students = User::where('role', 'etudiant')->orderBy('name')->get();
         $customFields = CustomFieldDefinition::where('model_type', Project::class)->get();
-        return view('projects.create', compact('students', 'customFields'));
+        $categories = Category::orderBy('name')->get();
+
+        return view('projects.create', compact('students', 'customFields', 'categories'));
     }
 
     public function store(Request $request): RedirectResponse
     {
         $this->authorize('create', Project::class);
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -151,17 +156,29 @@ class ProjectController extends Controller
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'custom_fields' => 'nullable|array',
+            'categories' => 'nullable|array',
+            'categories.*' => 'exists:categories,id',
         ]);
 
         DB::transaction(function () use ($validated) {
             $project = Project::create($validated);
+
             if (isset($validated['custom_fields'])) {
                 foreach ($validated['custom_fields'] as $fieldId => $value) {
                     if (!is_null($value)) {
-                        $project->customFields()->create(['custom_field_definition_id' => $fieldId, 'value' => $value]);
+                        $project->customFields()->create([
+                            'custom_field_definition_id' => $fieldId,
+                            'value' => $value,
+                        ]);
                     }
                 }
             }
+
+            if (isset($validated['categories'])) {
+                $project->categories()->sync($validated['categories']);
+            }
+
+            // Notify the student
             $student = User::find($validated['student_id']);
             if ($student) {
                 Notification::send($student, new ProjectActivityNotification("Nouveau projet assigné", "Le projet '{$project->title}' vous a été assigné.", route('projects.show', $project)));
@@ -174,7 +191,7 @@ class ProjectController extends Controller
     public function show(Project $project): View
     {
         $this->authorize('view', $project);
-        $project->load(['tasks.children', 'tasks' => fn($q) => $q->whereNull('parent_id'), 'comments.user', 'attachments.user', 'customFields.definition']);
+        $project->load(['tasks.children', 'tasks' => fn($q) => $q->whereNull('parent_id'), 'comments.user', 'attachments.user', 'customFields.definition', 'categories', 'milestones']);
         return view('projects.show', compact('project'));
     }
 
@@ -183,8 +200,9 @@ class ProjectController extends Controller
         $this->authorize('update', $project);
         $students = User::where('role', 'etudiant')->orderBy('name')->get();
         $customFields = CustomFieldDefinition::where('model_type', Project::class)->get();
-        $project->load('customFields');
-        return view('projects.edit', compact('project', 'students', 'customFields'));
+        $categories = Category::orderBy('name')->get();
+        $project->load('customFields', 'categories');
+        return view('projects.edit', compact('project', 'students', 'customFields', 'categories'));
     }
 
     public function update(Request $request, Project $project): RedirectResponse
@@ -198,6 +216,8 @@ class ProjectController extends Controller
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'custom_fields' => 'nullable|array',
+            'categories' => 'nullable|array',
+            'categories.*' => 'exists:categories,id',
         ]);
 
         DB::transaction(function () use ($project, $validated) {
@@ -210,6 +230,12 @@ class ProjectController extends Controller
                         $project->customFields()->updateOrCreate(['custom_field_definition_id' => $fieldId], ['value' => $value]);
                     }
                 }
+            }
+
+            if (isset($validated['categories'])) {
+                $project->categories()->sync($validated['categories']);
+            } else {
+                $project->categories()->sync([]);
             }
 
             if ($originalStatus !== $project->status) {

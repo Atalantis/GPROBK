@@ -52,6 +52,9 @@
                             <x-dropdown-link :href="route('custom-fields.index')">
                                 {{ __('Champs Personnalisés') }}
                             </x-dropdown-link>
+                            <x-dropdown-link :href="route('categories.index')">
+                                {{ __('Catégories') }}
+                            </x-dropdown-link>
                         @endcan
 
                         <!-- Authentication -->
@@ -108,6 +111,9 @@
                     <div class="border-t border-gray-200 dark:border-gray-600"></div>
                     <x-responsive-nav-link :href="route('custom-fields.index')">
                         {{ __('Champs Personnalisés') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('categories.index')">
+                        {{ __('Catégories') }}
                     </x-responsive-nav-link>
                 @endcan
 
