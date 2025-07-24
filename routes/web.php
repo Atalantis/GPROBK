@@ -39,6 +39,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('projects/{project}/kanban', [ProjectController::class, 'kanban'])->name('projects.kanban');
     Route::get('projects/{project}/gantt', [ProjectController::class, 'gantt'])->name('projects.gantt');
     Route::get('projects/{project}/gantt-data', [ProjectController::class, 'ganttData'])->name('projects.gantt.data');
+    Route::get('projects/{project}/calendar', [ProjectController::class, 'calendar'])->name('projects.calendar');
+    Route::get('projects/{project}/calendar-data', [ProjectController::class, 'calendarData'])->name('projects.calendar.data');
     Route::get('projects/{project}/brief', [ProjectController::class, 'brief'])->name('projects.brief');
     Route::patch('projects/{project}/brief', [ProjectController::class, 'updateBrief'])->name('projects.brief.update');
     Route::resource('projects', ProjectController::class);

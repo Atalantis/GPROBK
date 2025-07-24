@@ -21,6 +21,8 @@
         "vite": "^7.0.4"
     },
     "dependencies": {
+        "@fullcalendar/core": "^6.1.18",
+        "@fullcalendar/daygrid": "^6.1.18",
         "chart.js": "^4.5.0",
         "frappe-gantt": "^1.0.3"
     }

@@ -29,11 +29,14 @@
                 </form>
             </div>
             <div class="flex items-center space-x-2">
+                <a href="{{ route('projects.calendar', $project) }}" class="inline-flex items-center px-4 py-2 bg-teal-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-teal-500">
+                    Calendrier
+                </a>
                 <a href="{{ route('projects.gantt', $project) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500">
-                    Vue GANTT
+                    GANTT
                 </a>
                 <a href="{{ route('projects.kanban', $project) }}" class="inline-flex items-center px-4 py-2 bg-insuractio-accent border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-purple-700">
-                    Vue Kanban
+                    Kanban
                 </a>
             </div>
         </div>
