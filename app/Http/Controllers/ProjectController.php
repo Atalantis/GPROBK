@@ -9,11 +9,15 @@ use App\Notifications\ProjectActivityNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\View\View;
 
 class ProjectController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      */
@@ -46,6 +50,40 @@ class ProjectController extends Controller
     }
 
     /**
+     * Display the project tasks in a Gantt chart.
+     */
+    public function gantt(Project $project): View
+    {
+        $this->authorize('view', $project);
+
+        return view('projects.gantt', compact('project'));
+    }
+
+    /**
+     * Provide the data for the Gantt chart.
+     */
+    public function ganttData(Project $project): JsonResponse
+    {
+        $this->authorize('view', $project);
+
+        $tasks = $project->tasks()->with('prerequisites')->get();
+
+        $formattedTasks = $tasks->map(function ($task) {
+            return [
+                'id' => (string) $task->id,
+                'name' => $task->title,
+                'start' => $task->start_date?->format('Y-m-d'),
+                'end' => $task->end_date?->format('Y-m-d'),
+                'progress' => $task->progress,
+                'dependencies' => $task->prerequisites->pluck('id')->implode(','),
+                'custom_class' => 'bar-' . str_replace('_', '-', $task->status)
+            ];
+        });
+
+        return response()->json($formattedTasks);
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create(): View
@@ -69,6 +107,8 @@ class ProjectController extends Controller
             'description' => 'nullable|string',
             'student_id' => 'required|exists:users,id',
             'status' => 'required|in:draft,active,review,completed',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
         ]);
 
         $project = Project::create($validated);
@@ -122,6 +162,8 @@ class ProjectController extends Controller
             'description' => 'nullable|string',
             'student_id' => 'required|exists:users,id',
             'status' => 'required|in:draft,active,review,completed',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
         ]);
 
         $originalStatus = $project->status;
