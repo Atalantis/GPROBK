@@ -82,4 +82,21 @@ class ProjectFunctionalityTest extends TestCase
         // 3. Assert
         $response->assertStatus(403);
     }
+
+    /**
+     * Test that the dashboard is accessible to a professor.
+     */
+    public function test_dashboard_is_accessible_for_professor(): void
+    {
+        // 1. Arrange
+        $professor = User::factory()->create(['role' => 'professeur']);
+        Project::factory()->count(3)->create(); // Create some projects
+
+        // 2. Act
+        $response = $this->actingAs($professor)->get(route('dashboard'));
+
+        // 3. Assert
+        $response->assertStatus(200);
+        $response->assertViewIs('projects.index');
+    }
 }
