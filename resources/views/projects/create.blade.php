@@ -52,6 +52,22 @@
                             <x-input-error :messages="$errors->get('status')" class="mt-2" />
                         </div>
 
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <!-- Start Date -->
+                            <div>
+                                <x-input-label for="start_date" :value="__('Date de début')" />
+                                <x-text-input id="start_date" class="block mt-1 w-full" type="date" name="start_date" :value="old('start_date')" />
+                                <x-input-error :messages="$errors->get('start_date')" class="mt-2" />
+                            </div>
+
+                            <!-- End Date -->
+                            <div>
+                                <x-input-label for="end_date" :value="__('Date de fin')" />
+                                <x-text-input id="end_date" class="block mt-1 w-full" type="date" name="end_date" :value="old('end_date')" />
+                                <x-input-error :messages="$errors->get('end_date')" class="mt-2" />
+                            </div>
+                        </div>
+
                         <div class="flex items-center justify-end mt-4">
                             <x-primary-button>
                                 {{ __('Créer le projet') }}

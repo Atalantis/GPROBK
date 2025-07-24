@@ -23,6 +23,9 @@ class TaskController extends Controller
         // Authorize: only the assigned student or a professor can add a task
         $this->authorize('update', $project);
 
+        // Eager load tasks to pass them to the view for parent/dependency selection
+        $project->load('tasks');
+
         return view('tasks.create', compact('project'));
     }
 
@@ -39,10 +42,18 @@ class TaskController extends Controller
             'status' => 'required|in:todo,in_progress,review,completed',
             'priority' => 'required|in:low,medium,high,critical',
             'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'progress' => 'required|integer|min:0|max:100',
+            'parent_id' => 'nullable|exists:tasks,id',
+            'prerequisites' => 'nullable|array',
+            'prerequisites.*' => 'exists:tasks,id',
         ]);
 
-        $project->tasks()->create($validated);
+        $task = $project->tasks()->create($validated);
+
+        if (isset($validated['prerequisites'])) {
+            $task->prerequisites()->sync($validated['prerequisites']);
+        }
 
         return redirect()->route('projects.show', $project)->with('success', 'Tâche ajoutée avec succès.');
     }
@@ -62,7 +73,11 @@ class TaskController extends Controller
     public function edit(Task $task): View
     {
         $this->authorize('update', $task->project);
-        return view('tasks.edit', compact('task'));
+
+        // Eager load project tasks for parent/dependency selection
+        $projectTasks = $task->project->tasks()->get();
+
+        return view('tasks.edit', compact('task', 'projectTasks'));
     }
 
     /**
@@ -79,10 +94,20 @@ class TaskController extends Controller
             'priority' => 'required|in:low,medium,high,critical',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
+            'progress' => 'required|integer|min:0|max:100',
+            'parent_id' => 'nullable|exists:tasks,id',
+            'prerequisites' => 'nullable|array',
+            'prerequisites.*' => 'exists:tasks,id',
         ]);
 
         $originalStatus = $task->status;
         $task->update($validated);
+
+        if (isset($validated['prerequisites'])) {
+            $task->prerequisites()->sync($validated['prerequisites']);
+        } else {
+            $task->prerequisites()->sync([]);
+        }
 
         // Notify professor if a task is completed by a student
         if ($originalStatus !== 'completed' && $task->status === 'completed' && auth()->user()->role === 'etudiant') {

@@ -23,18 +23,38 @@ class ProjectController extends Controller
      */
     public function index(): View
     {
-        $user = \Auth::user();
-        $projects = collect();
+        $user = auth()->user();
+        $projectsQuery = $user->role === 'professeur'
+            ? Project::query()
+            : $user->projects();
 
-        if ($user->role === 'professeur') {
-            // For professors, get all projects and eager load the student data
-            $projects = Project::with('student')->latest()->get();
-        } else {
-            // For students, get only their own projects
-            $projects = $user->projects()->with('student')->latest()->get();
-        }
+        $projects = $projectsQuery->with('student', 'tasks')->latest()->get();
 
-        return view('projects.index', compact('projects'));
+        // Calculate stats
+        $stats = [
+            'total' => $projects->count(),
+            'draft' => $projects->where('status', 'draft')->count(),
+            'active' => $projects->where('status', 'active')->count(),
+            'review' => $projects->where('status', 'review')->count(),
+            'completed' => $projects->where('status', 'completed')->count(),
+            'overdue_tasks' => Task::whereIn('project_id', $projects->pluck('id'))
+                ->where('status', '!=', 'completed')
+                ->where('end_date', '<', now())
+                ->count(),
+        ];
+
+        // Prepare data for the chart
+        $chartData = [
+            'labels' => ['Brouillon', 'Actif', 'En Revue', 'Terminé'],
+            'data' => [
+                $stats['draft'],
+                $stats['active'],
+                $stats['review'],
+                $stats['completed'],
+            ],
+        ];
+
+        return view('projects.index', compact('projects', 'stats', 'chartData'));
     }
 
     /**

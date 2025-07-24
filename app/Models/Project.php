@@ -21,6 +21,8 @@ class Project extends Model
         'title',
         'description',
         'status',
+        'start_date',
+        'end_date',
         'brief_data',
     ];
 
@@ -31,6 +33,8 @@ class Project extends Model
      */
     protected $casts = [
         'brief_data' => 'array',
+        'start_date' => 'date',
+        'end_date' => 'date',
     ];
 
     /**
