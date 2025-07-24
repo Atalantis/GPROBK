@@ -3,3 +3,31 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Custom Gantt Chart Colors */
+.gantt .bar-todo .bar {
+    fill: #A0AEC0; /* gray-400 */
+}
+.gantt .bar-in-progress .bar {
+    fill: #4299E1; /* blue-400 */
+}
+.gantt .bar-review .bar {
+    fill: #F59E0B; /* amber-500 */
+}
+.gantt .bar-completed .bar {
+    fill: #48BB78; /* green-500 */
+}
+
+/* Custom progress bar colors */
+.gantt .bar-todo .bar-progress {
+    fill: #718096; /* gray-500 */
+}
+.gantt .bar-in-progress .bar-progress {
+    fill: #3182CE; /* blue-500 */
+}
+.gantt .bar-review .bar-progress {
+    fill: #D97706; /* amber-600 */
+}
+.gantt .bar-completed .bar-progress {
+    fill: #38A169; /* green-600 */
+}

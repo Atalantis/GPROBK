@@ -14,7 +14,12 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
-                    <div id="gantt"></div>
+                    <div class="flex space-x-2 mb-4">
+                        <x-secondary-button id="gantt-view-day">Jour</x-secondary-button>
+                        <x-secondary-button id="gantt-view-week">Semaine</x-secondary-button>
+                        <x-secondary-button id="gantt-view-month">Mois</x-secondary-button>
+                    </div>
+                    <svg id="gantt"></svg>
                 </div>
             </div>
         </div>
@@ -23,26 +28,27 @@
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            let gantt; // Make gantt instance accessible
+
             fetch('{{ route('projects.gantt.data', $project) }}')
                 .then(response => response.json())
                 .then(tasks => {
                     if (tasks.length > 0) {
-                        var gantt = new Gantt("#gantt", tasks, {
+                        gantt = new Gantt("#gantt", tasks, {
                             on_click: (task) => {
-                                window.location.href = '{{ url('/tasks') }}/' + task.id;
+                                // Assuming you have a route for showing tasks
+                                 window.location.href = '{{ url('tasks') }}/' + task.id + '/edit';
                             },
-                            on_date_change: (task, start, end) => {
-                                // Here you could add logic to update the task via an API call
-                                console.log(`Task ${task.id} dates changed to ${start} - ${end}`);
-                            },
-                            on_progress_change: (task, progress) => {
-                                // Here you could add logic to update the task via an API call
-                                console.log(`Task ${task.id} progress changed to ${progress}%`);
-                            },
-                            language: 'fr' // Set language to French
+                            language: 'fr'
                         });
+
+                        // Event listeners for view mode buttons
+                        document.getElementById('gantt-view-day').addEventListener('click', () => gantt.change_view_mode('Day'));
+                        document.getElementById('gantt-view-week').addEventListener('click', () => gantt.change_view_mode('Week'));
+                        document.getElementById('gantt-view-month').addEventListener('click', () => gantt.change_view_mode('Month'));
+
                     } else {
-                        document.getElementById('gantt').innerHTML = '<p>Aucune tâche avec des dates de début et de fin pour afficher le diagramme de Gantt.</p>';
+                        document.getElementById('gantt').innerHTML = '<p class="text-center text-gray-500">Aucune tâche avec des dates pour afficher le diagramme.</p>';
                     }
                 });
         });

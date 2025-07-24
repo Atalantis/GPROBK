@@ -85,36 +85,22 @@
                             @endcan
                         </div>
 
-                    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                    <div class="overflow-x-auto shadow-md sm:rounded-lg">
                         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                 <tr>
                                     <th scope="col" class="px-6 py-3">Titre</th>
-                                    <th scope="col" class="px-6 py-3">Priorité</th>
                                     <th scope="col" class="px-6 py-3">Statut</th>
-                                    <th scope="col" class="px-6 py-3">
-                                        <span class="sr-only">Actions</span>
-                                    </th>
+                                    <th scope="col" class="px-6 py-3">Début</th>
+                                    <th scope="col" class="px-6 py-3">Fin</th>
+                                    <th scope="col" class="px-6 py-3 min-w-[150px]">Progression</th>
+                                    <th scope="col" class="px-6 py-3"><span class="sr-only">Actions</span></th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($project->tasks as $task)
+                                @forelse ($project->tasks->where('parent_id', null) as $task)
                                     <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                                        <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                            {{ $task->title }}
-                                        </th>
-                                        <td class="px-6 py-4">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                                                @switch($task->priority)
-                                                    @case('low') bg-gray-200 text-gray-800 @break
-                                                    @case('medium') bg-blue-200 text-blue-800 @break
-                                                    @case('high') bg-yellow-200 text-yellow-800 @break
-                                                    @case('critical') bg-red-200 text-red-800 @break
-                                                @endswitch
-                                            ">
-                                                {{ ucfirst($task->priority) }}
-                                            </span>
-                                        </td>
+                                        <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">{{ $task->title }}</td>
                                         <td class="px-6 py-4">
                                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
                                                 @switch($task->status)
@@ -123,25 +109,56 @@
                                                     @case('review') bg-yellow-200 text-yellow-800 @break
                                                     @case('completed') bg-green-200 text-green-800 @break
                                                 @endswitch
-                                            ">
-                                                {{ ucfirst(str_replace('_', ' ', $task->status)) }}
-                                            </span>
+                                            ">{{ ucfirst(str_replace('_', ' ', $task->status)) }}</span>
+                                        </td>
+                                        <td class="px-6 py-4">{{ $task->start_date?->format('d/m/y') ?? '-' }}</td>
+                                        <td class="px-6 py-4">{{ $task->end_date?->format('d/m/y') ?? '-' }}</td>
+                                        <td class="px-6 py-4">
+                                            <div class="flex items-center">
+                                                <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 mr-2">
+                                                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ $task->progress }}%"></div>
+                                                </div>
+                                                <span class="text-xs font-medium">{{ $task->progress }}%</span>
+                                            </div>
                                         </td>
                                         <td class="px-6 py-4 text-right space-x-2 whitespace-nowrap">
-                                            <a href="{{ route('tasks.show', $task) }}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Détails</a>
-                                            @can('update', $project)
-                                                <a href="{{ route('tasks.edit', $task) }}" class="font-medium text-indigo-600 dark:text-indigo-500 hover:underline">Modifier</a>
-                                                <form class="inline-block" action="{{ route('tasks.destroy', $task) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette tâche ?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="font-medium text-red-600 dark:text-red-500 hover:underline">Supprimer</button>
-                                                </form>
-                                            @endcan
+                                            <a href="{{ route('tasks.edit', $task) }}" class="font-medium text-indigo-600 dark:text-indigo-500 hover:underline">Modifier</a>
                                         </td>
                                     </tr>
+                                    {{-- Display sub-tasks --}}
+                                    @foreach ($task->children as $child)
+                                        <tr class="bg-gray-50 dark:bg-gray-900 border-b dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                            <td class="pl-12 pr-6 py-3 font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                                                <span class="mr-2">└</span> {{ $child->title }}
+                                            </td>
+                                            <td class="px-6 py-3">
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                                    @switch($child->status)
+                                                        @case('todo') bg-gray-200 text-gray-800 @break
+                                                        @case('in_progress') bg-blue-200 text-blue-800 @break
+                                                        @case('review') bg-yellow-200 text-yellow-800 @break
+                                                        @case('completed') bg-green-200 text-green-800 @break
+                                                    @endswitch
+                                                ">{{ ucfirst(str_replace('_', ' ', $child->status)) }}</span>
+                                            </td>
+                                            <td class="px-6 py-3">{{ $child->start_date?->format('d/m/y') ?? '-' }}</td>
+                                            <td class="px-6 py-3">{{ $child->end_date?->format('d/m/y') ?? '-' }}</td>
+                                            <td class="px-6 py-3">
+                                                <div class="flex items-center">
+                                                    <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 mr-2">
+                                                        <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ $child->progress }}%"></div>
+                                                    </div>
+                                                    <span class="text-xs font-medium">{{ $child->progress }}%</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-3 text-right space-x-2 whitespace-nowrap">
+                                                <a href="{{ route('tasks.edit', $child) }}" class="font-medium text-indigo-600 dark:text-indigo-500 hover:underline">Modifier</a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                                        <td colspan="6" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                                             Aucune tâche pour ce projet.
                                         </td>
                                     </tr>
