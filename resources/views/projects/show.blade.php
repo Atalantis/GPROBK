@@ -96,6 +96,39 @@
             <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
                 <div class="w-full">
                     <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Jalons du Projet</h3>
+                        @can('update', $project)
+                            <a href="{{ route('projects.milestones.create', $project) }}" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md text-xs">
+                                Ajouter un jalon
+                            </a>
+                        @endcan
+                    </div>
+                    <ul class="space-y-3">
+                        @forelse ($project->milestones as $milestone)
+                            <li class="flex justify-between items-center p-3 rounded-md {{ $milestone->status == 'completed' ? 'bg-green-50 dark:bg-green-900' : 'bg-gray-50 dark:bg-gray-900' }}">
+                                <div>
+                                    <p class="font-semibold">{{ $milestone->title }}</p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">{{ $milestone->due_date?->format('d M Y') ?? 'Pas de date' }}</p>
+                                </div>
+                                <div class="flex items-center space-x-4">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $milestone->status == 'completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                        {{ $milestone->status == 'completed' ? 'Terminé' : 'Ouvert' }}
+                                    </span>
+                                    @can('update', $project)
+                                        <a href="{{ route('milestones.edit', $milestone) }}" class="text-sm text-indigo-600 hover:underline">Modifier</a>
+                                    @endcan
+                                </div>
+                            </li>
+                        @empty
+                            <p class="text-sm text-center text-gray-500">Aucun jalon défini pour ce projet.</p>
+                        @endforelse
+                    </ul>
+                </div>
+            </div>
+
+            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+                <div class="w-full">
+                    <div class="flex justify-between items-center mb-4">
                             <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Liste des Tâches</h3>
                             @can('update', $project)
                                 <a href="{{ route('tasks.create', $project) }}" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-500 active:bg-blue-700 focus:outline-none focus:border-blue-700 focus:ring ring-blue-300 disabled:opacity-25 transition ease-in-out duration-150">

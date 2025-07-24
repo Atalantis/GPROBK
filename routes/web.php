@@ -4,6 +4,7 @@ use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\AiAssistantController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CustomFieldDefinitionController;
+use App\Http\Controllers\MilestoneController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NotificationSettingsController;
 use App\Http\Controllers\ProfileController;
@@ -50,6 +51,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('projects/{project}/brief', [ProjectController::class, 'brief'])->name('projects.brief');
     Route::patch('projects/{project}/brief', [ProjectController::class, 'updateBrief'])->name('projects.brief.update');
     Route::resource('projects', ProjectController::class);
+
+    // Milestones (nested under projects)
+    Route::resource('projects.milestones', MilestoneController::class)->shallow()->except(['index', 'show']);
 
     // Attachments
     Route::post('projects/{project}/attachments', [AttachmentController::class, 'store'])->name('attachments.store');
