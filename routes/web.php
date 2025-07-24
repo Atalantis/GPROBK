@@ -65,6 +65,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('projects/{project}/comments', [CommentController::class, 'store'])->name('comments.store');
 
     // Tasks
+    Route::get('/api/tasks/{task}', [TaskController::class, 'showApi'])->name('tasks.show.api');
     Route::patch('tasks/{task}/status', [TaskController::class, 'updateStatus'])->name('tasks.update.status');
     Route::post('projects/{project}/tasks', [TaskController::class, 'store'])->name('tasks.store');
     Route::get('projects/{project}/tasks/create', [TaskController::class, 'create'])->name('tasks.create');

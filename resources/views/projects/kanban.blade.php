@@ -10,7 +10,7 @@
         </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-12" x-data="{ showTaskModal: false, taskModalContent: '' }">
         <div class="max-w-full mx-auto sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900 dark:text-gray-100">
@@ -29,7 +29,9 @@
                                 <h3 class="font-bold p-3 text-gray-700 dark:text-gray-200 border-b border-gray-200 dark:border-gray-600">{{ $statusName }}</h3>
                                 <div class="p-2 space-y-2 kanban-column" data-status="{{ $status }}">
                                     @forelse ($project->tasks->where('status', $status) as $task)
-                                        <div class="bg-white dark:bg-gray-800 p-3 rounded-md shadow cursor-grab" data-task-id="{{ $task->id }}">
+                                        <div @click="showTaskModal = true; fetch('{{ route('tasks.show.api', $task) }}').then(r => r.text()).then(html => taskModalContent = html)"
+                                             class="bg-white dark:bg-gray-800 p-3 rounded-md shadow cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700"
+                                             data-task-id="{{ $task->id }}">
                                             <h4 class="font-semibold text-sm">{{ $task->title }}</h4>
                                             <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Priorité:
                                                 <span class="font-bold
@@ -54,5 +56,14 @@
                 </div>
             </div>
         </div>
+
+        <!-- Task Detail Modal -->
+        <x-modal name="task-modal" x-show="showTaskModal" max-width="2xl">
+            <div x-html="taskModalContent">
+                <div class="p-6 text-center">
+                    <p>Chargement des détails de la tâche...</p>
+                </div>
+            </div>
+        </x-modal>
     </div>
 </x-app-layout>

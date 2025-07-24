@@ -60,6 +60,16 @@ class TaskController extends Controller
     }
 
     /**
+     * Return a partial view of the task details for API requests.
+     */
+    public function showApi(Task $task): View
+    {
+        $this->authorize('update', $task->project);
+        $task->load(['children', 'prerequisites', 'customFields.definition']);
+        return view('tasks.partials.modal-content', compact('task'));
+    }
+
+    /**
      * Display the specified resource.
      */
     public function show(Task $task): View
