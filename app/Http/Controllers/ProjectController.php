@@ -69,19 +69,35 @@ class ProjectController extends Controller
     public function ganttData(Project $project): JsonResponse
     {
         $this->authorize('view', $project);
+
         $tasks = $project->tasks()->with('prerequisites')->get();
+        $milestones = $project->milestones()->whereNotNull('due_date')->get();
+
         $formattedTasks = $tasks->map(function ($task) {
             return [
-                'id' => (string) $task->id,
+                'id' => 'task-' . $task->id,
                 'name' => $task->title,
                 'start' => $task->start_date?->format('Y-m-d'),
                 'end' => $task->end_date?->format('Y-m-d'),
                 'progress' => $task->progress,
-                'dependencies' => $task->prerequisites->pluck('id')->implode(','),
+                'dependencies' => $task->prerequisites->map(fn($p) => 'task-' . $p->id)->implode(','),
                 'custom_class' => 'bar-' . str_replace('_', '-', $task->status)
             ];
         });
-        return response()->json($formattedTasks);
+
+        $formattedMilestones = $milestones->map(function ($milestone) {
+            return [
+                'id' => 'milestone-' . $milestone->id,
+                'name' => 'Jalon: ' . $milestone->title,
+                'start' => $milestone->due_date->format('Y-m-d'),
+                'end' => $milestone->due_date->format('Y-m-d'),
+                'progress' => 100,
+                'dependencies' => '',
+                'custom_class' => 'bar-milestone' . ($milestone->status === 'completed' ? ' bar-milestone-completed' : '')
+            ];
+        });
+
+        return response()->json($formattedTasks->merge($formattedMilestones));
     }
 
     public function calendar(Project $project): View
