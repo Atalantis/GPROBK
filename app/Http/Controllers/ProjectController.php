@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\ProjectAssigned;
 use App\Models\Project;
+use App\Models\Task;
 use App\Models\User;
 use App\Notifications\ProjectActivityNotification;
 use Illuminate\Http\RedirectResponse;
