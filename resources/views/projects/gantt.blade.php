@@ -36,8 +36,10 @@
                     if (tasks.length > 0) {
                         gantt = new Gantt("#gantt", tasks, {
                             on_click: (task) => {
-                                // Assuming you have a route for showing tasks
-                                 window.location.href = '{{ url('tasks') }}/' + task.id + '/edit';
+                                if (task.id.startsWith('task-')) {
+                                    const taskId = task.id.replace('task-', '');
+                                    window.location.href = '{{ url('tasks') }}/' + taskId + '/edit';
+                                }
                             },
                             language: 'fr'
                         });
