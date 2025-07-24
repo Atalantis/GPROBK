@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -45,6 +46,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'notifications_enabled' => 'boolean',
         ];
     }
 
@@ -62,5 +64,49 @@ class User extends Authenticatable
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
+    }
+
+    /**
+     * Get the notification preferences for the user.
+     */
+    public function notificationPreferences(): HasMany
+    {
+        return $this->hasMany(NotificationPreference::class);
+    }
+
+    /**
+     * Get the professor of the student.
+     *
+     * This is a simplified implementation. It assumes the first professor is the one.
+     * A more robust implementation would involve a direct relationship.
+     */
+    public function getProfesseurAttribute(): ?User
+    {
+        if ($this->role === 'etudiant') {
+            return User::where('role', 'professeur')->first();
+        }
+        return null;
+    }
+
+    /**
+     * Check if a specific notifiable item is muted for the user.
+     *
+     * @param string $notifiableType
+     * @param int $notifiableId
+     * @return bool
+     */
+    public function isMuted(string $notifiableType, int $notifiableId): bool
+    {
+        // First, check the global switch
+        if (!$this->notifications_enabled) {
+            return true;
+        }
+
+        // Then, check for a specific mute rule
+        return $this->notificationPreferences()
+            ->where('notifiable_type', $notifiableType)
+            ->where('notifiable_id', $notifiableId)
+            ->where('is_muted', true)
+            ->exists();
     }
 }

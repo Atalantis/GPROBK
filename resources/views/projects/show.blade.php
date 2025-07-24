@@ -1,9 +1,33 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-                Détail du Projet : {{ $project->title }}
-            </h2>
+            <div class="flex items-center space-x-4">
+                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                    Détail du Projet : {{ $project->title }}
+                </h2>
+                @php
+                    $isMuted = Auth::user()->isMuted(App\Models\Project::class, $project->id);
+                @endphp
+                <form id="mute-form" method="post" action="{{ route('notifications.mute.toggle') }}" class="m-0">
+                    @csrf
+                    <input type="hidden" name="notifiable_type" value="{{ App\Models\Project::class }}">
+                    <input type="hidden" name="notifiable_id" value="{{ $project->id }}">
+                    <button type="submit" title="{{ $isMuted ? 'Réactiver les notifications' : 'Mettre les notifications en sourdine' }}" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                        @if ($isMuted)
+                            {{-- Bell-slash icon --}}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.86 5.86a14.95 14.95 0 00-2.12 2.12m14.14 0a14.95 14.95 0 00-2.12-2.12M12 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18" />
+                            </svg>
+                        @else
+                            {{-- Bell icon --}}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
+                        @endif
+                    </button>
+                </form>
+            </div>
             <a href="{{ route('projects.kanban', $project) }}" class="inline-flex items-center px-4 py-2 bg-insuractio-accent border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-purple-700">
                 Vue Kanban
             </a>

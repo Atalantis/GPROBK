@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use App\Models\Task;
+use App\Notifications\ProjectActivityNotification;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\View\View;
 
 class TaskController extends Controller
@@ -79,7 +81,22 @@ class TaskController extends Controller
             'end_date' => 'nullable|date|after_or_equal:start_date',
         ]);
 
+        $originalStatus = $task->status;
         $task->update($validated);
+
+        // Notify professor if a task is completed by a student
+        if ($originalStatus !== 'completed' && $task->status === 'completed' && auth()->user()->role === 'etudiant') {
+            $project = $task->project;
+            $recipient = $project->student->professeur;
+
+            if ($recipient && !$recipient->isMuted(Project::class, $project->id)) {
+                $title = "Tâche terminée";
+                $message = "L'étudiant " . auth()->user()->name . " a terminé la tâche : " . $task->title;
+                $url = route('tasks.show', $task);
+
+                Notification::send($recipient, new ProjectActivityNotification($title, $message, $url));
+            }
+        }
 
         return redirect()->route('projects.show', $task->project)->with('success', 'Tâche mise à jour avec succès.');
     }

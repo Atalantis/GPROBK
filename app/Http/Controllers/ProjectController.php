@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Mail\ProjectAssigned;
 use App\Models\Project;
 use App\Models\User;
+use App\Notifications\ProjectActivityNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\View\View;
 
 class ProjectController extends Controller
@@ -71,9 +73,15 @@ class ProjectController extends Controller
 
         $project = Project::create($validated);
 
-        // Send email to the student
+        // Notify the student
         $student = User::find($validated['student_id']);
-        Mail::to($student)->send(new ProjectAssigned($project));
+        if ($student) {
+            $title = "Nouveau projet assigné";
+            $message = "Le projet '{$project->title}' vous a été assigné.";
+            $url = route('projects.show', $project);
+            Notification::send($student, new ProjectActivityNotification($title, $message, $url));
+        }
+
 
         return redirect()->route('dashboard')->with('success', 'Projet créé avec succès et étudiant notifié.');
     }
@@ -116,7 +124,22 @@ class ProjectController extends Controller
             'status' => 'required|in:draft,active,review,completed',
         ]);
 
+        $originalStatus = $project->status;
         $project->update($validated);
+
+        // Notify about status change
+        if ($originalStatus !== $project->status) {
+            $user = auth()->user();
+            $recipient = $user->role === 'etudiant' ? $project->student->professeur : $project->student;
+
+            if ($recipient && !$recipient->isMuted(Project::class, $project->id)) {
+                $title = "Statut du projet mis à jour";
+                $message = "Le statut du projet '{$project->title}' est passé à '{$project->status}'.";
+                $url = route('projects.show', $project);
+
+                Notification::send($recipient, new ProjectActivityNotification($title, $message, $url));
+            }
+        }
 
         return redirect()->route('dashboard')->with('success', 'Projet mis à jour avec succès.');
     }
@@ -127,7 +150,7 @@ class ProjectController extends Controller
     public function destroy(Project $project): RedirectResponse
     {
         // Only professors can delete projects.
-        abort_if(Auth::user()->role !== 'professeur', 403, 'Action non autorisée.');
+        abort_if(auth()->user()->role !== 'professeur', 403, 'Action non autorisée.');
 
         $project->delete();
 
