@@ -21,6 +21,13 @@
                 </div>
             </div>
 
+            <!-- Search Bar -->
+            <div class="hidden sm:flex sm:items-center sm:ms-6">
+                <form action="{{ route('search') }}" method="GET">
+                    <x-text-input name="query" placeholder="Rechercher..." class="w-48" />
+                </form>
+            </div>
+
             <!-- Notifications Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 @livewire('notifications-indicator')

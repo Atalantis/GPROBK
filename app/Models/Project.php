@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Laravel\Scout\Searchable;
 
 class Project extends Model
 {
-    use HasFactory;
+    use HasFactory, Searchable;
 
     /**
      * The attributes that are mass assignable.
@@ -27,6 +28,20 @@ class Project extends Model
         'end_date',
         'brief_data',
     ];
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array<string, mixed>
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'title' => $this->title,
+            'description' => $this->description,
+        ];
+    }
 
     /**
      * The attributes that should be cast.

@@ -11,6 +11,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\NotificationSettingsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +22,7 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [ProjectController::class, 'index'])->name('dashboard');
     Route::get('/my-tasks', [MyTasksController::class, 'index'])->name('my-tasks.index');
+    Route::get('/search', SearchController::class)->name('search');
 
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
