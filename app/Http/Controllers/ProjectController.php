@@ -66,7 +66,7 @@ class ProjectController extends Controller
     public function kanban(Project $project): View
     {
         $this->authorize('view', $project);
-        $project->load('tasks');
+        $project->load('tasks.categories', 'tasks.comments', 'tasks.children');
         return view('projects.kanban', compact('project'));
     }
 
@@ -128,14 +128,14 @@ class ProjectController extends Controller
                 'title' => 'Tâche: ' . $task->title,
                 'start' => $task->date->format('Y-m-d'),
                 'url' => route('tasks.edit', $task),
-                'color' => $this->getStatusColor($task->status, 'task'),
+                'color' => $task->status_color,
             ];
         })->merge($milestones->map(function ($milestone) {
             return [
                 'title' => 'Jalon: ' . $milestone->title,
                 'start' => $milestone->date->format('Y-m-d'),
                 'url' => route('projects.show', $milestone->project_id),
-                'color' => $this->getStatusColor($milestone->status, 'milestone'),
+                'color' => $milestone->status === 'completed' ? '#10B981' : '#EF4444',
             ];
         }));
 
@@ -285,18 +285,5 @@ class ProjectController extends Controller
         ]);
         $project->update(['brief_data' => $validated]);
         return redirect()->route('projects.show', $project)->with('success', 'Brief du projet mis à jour.');
-    }
-
-    private function getStatusColor(string $status, string $type): string
-    {
-        if ($type === 'milestone') {
-            return $status === 'completed' ? '#10B981' : '#EF4444';
-        }
-        return match ($status) {
-            'completed' => '#22C55E',
-            'review' => '#F59E0B',
-            'in_progress' => '#3B82F6',
-            default => '#6B7280',
-        };
     }
 }

@@ -119,4 +119,17 @@ class Task extends Model
     {
         return $this->morphMany(CustomFieldValue::class, 'customizable');
     }
+
+    /**
+     * Get the color associated with the task status.
+     */
+    public function getStatusColorAttribute(): string
+    {
+        return match ($this->status) {
+            'completed' => '#22C55E', // green-500
+            'review' => '#F59E0B',    // amber-500
+            'in_progress' => '#3B82F6', // blue-500
+            default => '#6B7280',      // gray-500
+        };
+    }
 }
