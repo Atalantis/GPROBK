@@ -25,18 +25,12 @@ class ProjectController extends Controller
     {
         $user = auth()->user();
         
-        $projectsQuery = $user->role === 'professeur'
+        $baseQuery = $user->role === 'professeur'
             ? Project::query()
             : $user->projects();
 
-        $projects = QueryBuilder::for($projectsQuery)
-            ->allowedFilters(['status'])
-            ->with('student', 'tasks')
-            ->latest()
-            ->get();
-
-        // Stats should be calculated on all projects, not just filtered ones
-        $allProjects = $projectsQuery->get();
+        // First, get all projects for global stats before filtering
+        $allProjects = (clone $baseQuery)->get();
         $stats = [
             'total' => $allProjects->count(),
             'draft' => $allProjects->where('status', 'draft')->count(),
@@ -48,6 +42,13 @@ class ProjectController extends Controller
                 ->where('end_date', '<', now())
                 ->count(),
         ];
+
+        // Then, get the filtered/sorted projects for the list view
+        $projects = QueryBuilder::for($baseQuery)
+            ->allowedFilters(['status'])
+            ->with('student', 'tasks')
+            ->latest()
+            ->get();
 
         $chartData = [
             'labels' => ['Brouillon', 'Actif', 'En Revue', 'Terminé'],
