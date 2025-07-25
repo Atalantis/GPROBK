@@ -5,6 +5,7 @@ use App\Http\Controllers\AiAssistantController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\CustomFieldDefinitionController;
+use App\Http\Controllers\LinkController;
 use App\Http\Controllers\MilestoneController;
 use App\Http\Controllers\MyTasksController;
 use App\Http\Controllers\NotificationController;
@@ -60,6 +61,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Milestones (nested under projects)
     Route::resource('projects.milestones', MilestoneController::class)->shallow()->except(['index', 'show']);
+
+    // Links
+    Route::post('/links', [LinkController::class, 'store'])->name('links.store');
+    Route::delete('/links/{link}', [LinkController::class, 'destroy'])->name('links.destroy');
 
     // Attachments
     Route::post('projects/{project}/attachments', [AttachmentController::class, 'store'])->name('attachments.store');

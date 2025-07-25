@@ -343,6 +343,10 @@
                         <p><strong class="w-48 inline-block font-semibold text-gray-900 dark:text-gray-100">Problématique:</strong> <span>{{ $brief->problematique ?? 'Non définie' }}</span></p>
                         <p><strong class="w-48 inline-block font-semibold text-gray-900 dark:text-gray-100">Objectifs:</strong> <span>{{ $brief->objectifs ?? 'Non définis' }}</span></p>
                     </div>
+
+                    @can('update', $project)
+                        @include('links.partials.form', ['model' => $project])
+                    @endcan
                 </div>
             </div>
 
