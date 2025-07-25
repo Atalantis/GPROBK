@@ -66,7 +66,7 @@ class ProjectController extends Controller
     public function kanban(Project $project): View
     {
         $this->authorize('view', $project);
-        $project->load('tasks.categories', 'tasks.comments', 'tasks.children');
+        $project->load('tasks.categories', 'tasks.children');
         return view('projects.kanban', compact('project'));
     }
 

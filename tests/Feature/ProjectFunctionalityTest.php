@@ -99,4 +99,21 @@ class ProjectFunctionalityTest extends TestCase
         $response->assertStatus(200);
         $response->assertViewIs('projects.index');
     }
+
+    /**
+     * Test that the kanban board is accessible.
+     */
+    public function test_kanban_board_is_accessible(): void
+    {
+        // 1. Arrange
+        $user = User::factory()->create();
+        $project = Project::factory()->create(['student_id' => $user->id]);
+
+        // 2. Act
+        $response = $this->actingAs($user)->get(route('projects.kanban', $project));
+
+        // 3. Assert
+        $response->assertStatus(200);
+        $response->assertViewIs('projects.kanban');
+    }
 }
