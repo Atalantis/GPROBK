@@ -2,11 +2,20 @@
 
 namespace Database\Seeders;
 
-use Database\Seeders\Projects\EleonoreRokiaSeeder;
-use Database\Seeders\Projects\EmmaReynosoSeeder;
-use Database\Seeders\Projects\JeanPhilippeCunySeeder;
-use Database\Seeders\Projects\LydiaSoulaySeeder;
-use Database\Seeders\Projects\VanessaCostaSeeder;
+use Database\Seeders\projects\AdrienGarnierSeeder;
+use Database\Seeders\projects\AudreyKabreSeeder;
+use Database\Seeders\projects\BettinaElmalkiSeeder;
+use Database\Seeders\projects\CaroleGrandinSeeder;
+use Database\Seeders\projects\EleonoreRokiaSeeder;
+use Database\Seeders\projects\EmmaReynosoAvalosSeeder;
+use Database\Seeders\projects\FatehHaddadouSeeder;
+use Database\Seeders\projects\FlorentOdetSeeder;
+use Database\Seeders\projects\HoaTranSeeder;
+use Database\Seeders\projects\JeanPhilippeCunySeeder;
+use Database\Seeders\projects\JenniferRafinonSeeder;
+use Database\Seeders\projects\JosaphatKodessaSeeder;
+use Database\Seeders\projects\LydiaSoudaySeeder;
+use Database\Seeders\projects\VanessaCostaSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -17,11 +26,21 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            EmmaReynosoSeeder::class,
+            UserSeeder::class, // Ajout du seeder pour le professeur
             JeanPhilippeCunySeeder::class,
             EleonoreRokiaSeeder::class,
             VanessaCostaSeeder::class,
-            LydiaSoulaySeeder::class,
+            AdrienGarnierSeeder::class,
+            AudreyKabreSeeder::class,
+            BettinaElmalkiSeeder::class,
+            CaroleGrandinSeeder::class,
+            EmmaReynosoAvalosSeeder::class,
+            FatehHaddadouSeeder::class,
+            FlorentOdetSeeder::class,
+            HoaTranSeeder::class,
+            JenniferRafinonSeeder::class,
+            JosaphatKodessaSeeder::class,
+            LydiaSoudaySeeder::class,
         ]);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Seeders\Projects;
+namespace Database\Seeders\projects;
 
 use App\Models\Project;
 use App\Models\Task;
