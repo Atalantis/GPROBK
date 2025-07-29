@@ -80,7 +80,7 @@
         </div>
 
         <!-- Task Detail Modal -->
-        <x-modal name="task-modal" x-show="showTaskModal" max-width="2xl">
+        <x-modal name="task-modal" :show="showTaskModal" max-width="2xl">
             <div x-html="taskModalContent">
                 <div class="p-6 text-center">
                     <p>Chargement des détails de la tâche...</p>
